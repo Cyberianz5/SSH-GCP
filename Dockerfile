@@ -3,7 +3,8 @@ FROM debian:stable-slim
 # Install OpenSSH server + Node.js for WebSocket proxy
 RUN apt-get update && apt-get install -y \
     openssh-server nodejs npm && \
-    mkdir /var/run/sshd
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /var/run/sshd
 
 # Create SSH user (example: user=Admin / pass=Admin)
 RUN useradd -m -s /bin/bash Admin && \
@@ -15,6 +16,7 @@ COPY ws-proxy.js /app
 RUN npm install ws net
 
 # Expose SSH internally + Cloud Run external
-EXPOSE 8080
+EXPOSE 8080 22
 
-CMD service ssh start && node ws-proxy.js
+# Start sshd in background, then run WebSocket proxy in foreground
+CMD /usr/sbin/sshd -D & node /app/ws-proxy.js
