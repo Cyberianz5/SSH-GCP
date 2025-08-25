@@ -1,24 +1,25 @@
-FROM debian:stable-slim
+FROM debian:bullseye
 
-# Install OpenSSH server + Node.js for WebSocket proxy
-RUN apt-get update && apt-get install -y \
-    openssh-server nodejs npm && \
-    rm -rf /var/lib/apt/lists/*
+# By danaelssh - 09/06/2025
+RUN apt update && apt install -y \
+  nodejs \
+  npm \
+  openssh-server \
+  passwd \
+  net-tools \
+  curl \
+  sudo \
+  && rm -rf /var/lib/apt/lists/*
 
-# Prepare SSH
-RUN mkdir -p /var/run/sshd
-
-# Create SSH user (example: user=Admin / pass=Admin)
-RUN useradd -m -s /bin/bash Admin && \
-    echo "Admin:Admin" | chpasswd
-
-# Copy WS proxy
+# By danaelssh - 09/06/2025
 WORKDIR /app
-COPY ws-proxy.js /app
-RUN npm install ws net
+COPY . .
 
-# Expose WS port for Cloud Run
-EXPOSE 8080
+# By danaelssh - 09/06/2025
+RUN npm install
 
-# Run sshd in foreground (-D) and WS proxy together
-CMD /usr/sbin/sshd -D & node /app/ws-proxy.js
+# By danaelssh - 10/06/2025
+RUN mkdir /var/run/sshd
+
+# By danaelssh - 10/06/2025
+CMD ["node", "index.js"]
