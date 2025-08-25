@@ -5,26 +5,28 @@ const http = require('http');
 const SSH_HOST = "127.0.0.1";
 const SSH_PORT = 22;
 
-const wss = new WebSocket.Server({ noServer: true });
 const server = http.createServer();
+const wss = new WebSocket.Server({ server });
 
-server.on('upgrade', (req, socket, head) => {
-  // Accept ANY path: /app1, /app2, etc.
-  wss.handleUpgrade(req, socket, head, (ws) => {
-    wss.emit('connection', ws, req);
+wss.on('connection', (ws, req) => {
+  console.log("New WS connection from:", req.socket.remoteAddress);
+
+  const sshSocket = net.connect(SSH_PORT, SSH_HOST, () => {
+    console.log("Connected to SSH");
   });
-});
-
-wss.on('connection', (ws) => {
-  const sshSocket = net.connect(SSH_PORT, SSH_HOST);
 
   ws.on('message', (msg) => sshSocket.write(msg));
-  sshSocket.on('data', (chunk) => ws.send(chunk));
+  sshSocket.on('data', (chunk) => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(chunk);
+    }
+  });
 
   ws.on('close', () => sshSocket.end());
   sshSocket.on('close', () => ws.close());
 });
 
-server.listen(process.env.PORT || 8080, () => {
-  console.log("WS Proxy running → SSH server on 22");
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, () => {
+  console.log(`WS Proxy running on port ${PORT} (SNI=api.snapchat.com)`);
 });
