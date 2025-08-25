@@ -21,8 +21,5 @@ RUN npm install
 # By danaelssh - 10/06/2025
 RUN mkdir /var/run/sshd
 
-# Cloud Run expects the app to listen on PORT
-EXPOSE 8080
-
 # By danaelssh - 10/06/2025
 CMD ["node", "index.js"]
