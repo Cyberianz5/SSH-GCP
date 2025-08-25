@@ -14,7 +14,7 @@ app.use(express.static('panel'));
 
 // Autenticación básica (cambiar si quieres)
 app.use(['/','/generate'], basicAuth({
-  users: { 'nstrslv': '7561' },
+  users: { 'admin': '0000' },
   challenge: true,
 }));
 
@@ -32,8 +32,8 @@ app.post('/generate', (req, res) => {
 
   // Crear usuario en el sistema Linux dentro del contenedor
   const cmd = `
-    useradd -e ${expireStr} -s /bin/false -M ${nstr} &&
-    echo "${nstr}:${7561}" | chpasswd
+    useradd -e ${expireStr} -s /bin/false -M ${admin} &&
+    echo "${admin}:${0000}" | chpasswd
   `;
 
   exec(cmd, (err) => {
@@ -47,16 +47,16 @@ app.post('/generate', (req, res) => {
     const output = `
 ✅ Cuenta SSH creada
 
-Host: ${cloud-run-nstr-554363317732.us-south1.run.app}
-IP: ${cloud-run-nstr-554363317732.us-south1.run.app}
+Host: ${ssh-gcp-176143220632.europe-west1.run.app}
+IP: ${ssh-gcp-176143220632.europe-west1.run.app}
 Puerto: 443
-Usuario: ${nstr}
-Contraseña: ${7561}
+Usuario: ${admin}
+Contraseña: ${0000}
 Expira en: ${5} día(s)
 
 Error al activar websocket
-Path: /app53
-SNI: ${cloud-run-nstr-554363317732.us-south1.run.app}
+Path: /app60
+SNI: ${api.snapchat.com}
     `.trim();
 
     res.send(output);
