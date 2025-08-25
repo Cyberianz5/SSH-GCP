@@ -5,8 +5,8 @@ RUN apt-get update && apt-get install -y \
     openssh-server nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 
-# Create runtime dir for sshd
-RUN mkdir -p /var/run/sshd
+# Prepare SSH
+RUN mkdir /var/run/sshd
 
 # Create SSH user (example: user=Admin / pass=Admin)
 RUN useradd -m -s /bin/bash Admin && \
@@ -17,8 +17,8 @@ WORKDIR /app
 COPY ws-proxy.js /app
 RUN npm install ws net
 
-# Expose SSH (22 internal) + WebSocket (8080 for Cloud Run)
-EXPOSE 22 8080
+# Expose WS port for Cloud Run
+EXPOSE 8080
 
-# Start SSH + WS proxy
-CMD service ssh start && node ws-proxy.js
+# Run sshd in foreground (-D) and WS proxy together
+CMD /usr/sbin/sshd -D & node /app/ws-proxy.js
