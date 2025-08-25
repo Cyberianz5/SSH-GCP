@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # Prepare SSH
-RUN mkdir /var/run/sshd
+RUN mkdir -p /var/run/sshd
 
 # Create SSH user (example: user=Admin / pass=Admin)
 RUN useradd -m -s /bin/bash Admin && \
